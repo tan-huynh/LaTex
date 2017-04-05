@@ -1,0 +1,217 @@
+% Rauschen.sty es un conjunto de funciones programadas por Christian R. Jimenez el 1-Ago-2013
+% Cuyo objetivo es proveer figuras para las fuentes de ruido y símbolos utilizados por los profesores
+% A.Zwick y P.Nguyen en los cursos de Electronica Médica y Electrónica Analógica.
+
+\NeedsTeXFormat{LaTeX2e}[1999/01/01]
+
+\RequirePackage{tikz,amsmath,amssymb,pgfplots,color,graphicx}
+
+\usetikzlibrary{intersections,calc,positioning,patterns,circuits,circuits.ee,circuits.ee.IEC,shapes,arrows,backgrounds,decorations.markings}
+
+%----------------------------------------------------------------------------- NEWCOMMAND ZwCancel
+% \ZwCancel {Coordinate 1}{Coordinate 2}{Scale}{Color,<Line Style>:dashed,very thick}
+%--------------------------------------------------------------------------------------------------------------------
+\newcommand{\ZwCancel}[4]{
+	\tikzset{circuit declare symbol=sR, set sR graphic={fill=white,draw,shape=circle,minimum size=5mm}}
+	%------------------------------------------------------------------------------Zwick'sche Cancel
+	%------------------------------------------------------------- Drawing the Zwick'sche Cancel
+	%------------------------------------------------------------------------Coordinate Calculations
+	\coordinate (A) at (#1);
+	\coordinate (B) at (#2);
+	\coordinate (C) at ($(A)!0.5!(B)$);                                                   
+	\node [name path = Circle,opacity=0][sR,scale=#3] (P) at (C) {};    
+	%-----------------------------------------------Intersection Calculations
+	\path [name path=Line] (A)--(B);
+	\path [name intersections={of=Line and Circle}];
+	\coordinate (D) at (intersection-1);
+	\coordinate (E) at (intersection-2);
+	
+	\draw let \p1 = ($(D)-(C)$),
+		      \n0={veclen(\x1,\y1)}
+		      in 
+		      coordinate (E1) at ($(C)!1.4*\n0!90:(D)$)
+		      coordinate (F1) at ($(E1)!2*\n0!90:(C)$)	
+		      coordinate (G1) at ($(F1)!1.4*\n0!90:(E1)$)
+		      coordinate (H1) at ($(G1)!0.40*\n0!-90:(F1)$)
+		      coordinate (I1) at   ($(E1)!1.2*\n0!90:(C)$)
+		      coordinate (J1) at   ($(H1)!0.6*\n0!-90:(G1)$)
+		      
+		      coordinate (E2) at ($(C)!1.4*\n0!-90:(D)$)
+		      coordinate (F2) at ($(E2)!2*\n0!90:(C)$)	
+		      coordinate (G2) at ($(F2)!1.4*\n0!90:(E2)$)
+		      coordinate (H2) at ($(G2)!0.40*\n0!-90:(F2)$)
+		      coordinate (I2) at   ($(E2)!1.2*\n0!90:(C)$)
+		      coordinate (J2) at   ($(H2)!0.6*\n0!-90:(G2)$);
+	
+	\draw[#4] (F1) -- (F2);
+}
+%--------------------------------------------------------------------ENDE NEWCOMMAND ZwCancel
+
+
+%----------------------------------------------------------------------------- NEWCOMMAND \ZwIntegral
+% \ZwIntegral{Coordinate 1}{Coordinate 2}{Scale}{Color,<Line Style>:dashed,very thick}
+%--------------------------------------------------------------------------------------------------------------------
+\newcommand{\ZwIntegral}[4]{
+	\tikzset{circuit declare symbol=sR, set sR graphic={fill=white,draw,shape=circle,minimum size=5mm}}
+	%------------------------------------------------------------------------------Zwick'sche Integral
+	%------------------------------------------------------------- Drawing the Zwick'sche Integral
+	%------------------------------------------------------------------------Coordinate Calculations
+	\coordinate (A) at (#1);
+	\coordinate (B) at (#2);
+	\coordinate (C) at ($(A)!0.5!(B)$);                                                   
+	\node [name path = Circle,opacity=0][sR,scale=#3] (P) at (C) {};    
+	%-----------------------------------------------Intersection Calculations
+	\path [name path=Line] (A)--(B);
+	\path [name intersections={of=Line and Circle}];
+	\coordinate (D) at (intersection-1);
+	\coordinate (E) at (intersection-2);
+	
+	\draw let \p1 = ($(D)-(C)$),
+		      \n0={veclen(\x1,\y1)}
+		      in 
+		      coordinate (E1) at ($(C)!1.4*\n0!90:(D)$)
+		      coordinate (F1) at ($(E1)!2*\n0!90:(C)$)	
+		      coordinate (G1) at ($(F1)!1.4*\n0!90:(E1)$)
+		      coordinate (H1) at ($(G1)!0.40*\n0!-90:(F1)$)
+		      coordinate (I1) at   ($(E1)!1.2*\n0!90:(C)$)
+		      coordinate (J1) at   ($(H1)!0.6*\n0!-90:(G1)$)
+		      
+		      coordinate (E2) at ($(C)!1.4*\n0!-90:(D)$)
+		      coordinate (F2) at ($(E2)!2*\n0!90:(C)$)	
+		      coordinate (G2) at ($(F2)!1.4*\n0!90:(E2)$)
+		      coordinate (H2) at ($(G2)!0.40*\n0!-90:(F2)$)
+		      coordinate (I2) at   ($(E2)!1.2*\n0!90:(C)$)
+		      coordinate (J2) at   ($(H2)!0.6*\n0!-90:(G2)$);
+	
+	\draw[#4] (J1) .. controls (F1) and (I1) .. (C);
+	\draw[#4] (J2) .. controls (F2) and (I2) .. (C);
+}
+%--------------------------------------------------------------------ENDE NEWCOMMAND \ZwIntegral
+
+%----------------------------------------------------------------- NEWCOMMAND \Stromrauschquelle
+%\Stromrauschquelle
+%  {#1:Coordinate 1}
+%  {#2:Coordinate 2}
+%  {#3:info=right:{\small$i_{Nop}$}}
+%  {#4:Scale}
+%  {#5:pattern=north west lines,pattern color = blue!80}
+%  {#6 and #7: -- or to[current direction] or to[current direction'={info={\small$i_{Nop}$}}] }
+%---------------------------------------------------------------------------------------------------------------------
+\newcommand{\Stromrauschquelle}[7]{
+	\tikzset{circuit declare symbol=sR, set sR graphic={fill=white,draw,shape=circle,minimum size=5mm} }
+
+%----Coordinate Calculations
+	\coordinate (A) at (#1);   %-Always on Top or left point
+	\coordinate (B) at (#2);
+	\coordinate (C) at ($(A)!0.5!(B)$);                                                   
+	\node [name path = Circle,opacity=0,#3][sR,scale=#4] (P) at (C) {};     
+%----Intersection Calculations
+	\path [name path=Line] (A)--(B);
+	\path [name intersections={of=Line and Circle}];
+	\coordinate (D) at (intersection-1);
+	\coordinate (E) at (intersection-2);
+%----Calculating the new centers of the circles.
+	\coordinate (F) at ($(D) !0.30!(C)$);   
+	\coordinate (G) at ($(C) !0.70!(E)$);      
+%----Calculating Radio of the circles based on the original circle.
+	\draw let \p1 = ($(D)-(C)$),
+		      \n0={veclen(\x1,\y1)}
+		      in 
+		      node[draw,name path = Circle1,circle,minimum size = 2*\n0,#5] (P1) at (F) {}
+		      node[draw,name path = Circle2,circle,minimum size = 2*\n0,#5] (P2) at (G) {};
+		      
+	% Two Path Lines pro calculate the intersection H and I for the lines.
+	% This is needed because our figure can rotate.
+	\draw [name path = Line1, draw=none] (A) -- (D);      
+	\draw [name path = Line2, draw=none] (B) -- (E);     
+	\path [name intersections={of=Line1 and Circle1}];
+	\coordinate (H) at (intersection-1);  
+	\path [name intersections={of=Line2 and Circle2}];
+	\coordinate (I) at (intersection-1);
+	% Now  we can choose which line would we want for the lines between A-H and B-I
+	\draw (A) #6 (H);
+	\draw (I) #7 (B);	
+	}
+%----------------------------------------------------------ENDE NEWCOMMAND
+
+%------------------------------- NEWCOMMAND \Wechselspannungsquelle
+%\Wechselspannungsquelle
+%  {#1:Coordinate 1}
+%  {#2:Coordinate 2}
+%  {#3:color,thickness (circle),info=left:{3V} or info=north:{3V}}
+%  {#4:Scale}
+%  {#5 and #6: -- or to[current direction] or to[current direction'={info={\small$i_{Nop}$}}] }
+%-------------------------------
+\newcommand{\Wechselspannungsquelle}[7]{
+		\coordinate (A) at (#1);
+		\coordinate (B) at (#2);
+		\coordinate (C) at ($(A)!0.5!(B)$);                                                   
+		\node [name path = Circle,#3][sR,scale=#4] (P) at (C) {};    
+		%---------------------------------Intersection Calculations
+		\path [name path=Line] (A)--(B);
+		\path [name intersections={of=Line and Circle}];
+		\coordinate (D) at (intersection-1);
+		\coordinate (E) at (intersection-2);
+		
+		\draw let \p1 = ($(D)-(C)$),
+			      \n0={veclen(\x1,\y1)}
+			      in 
+			      coordinate (F1) at ($(C)!0.7*\n0!90:(D)$)
+			      coordinate (G1) at ($(F1)!0.4*\n0!90:(C)$)
+			      coordinate (H1) at ($(G1)!0.175*\n0!90:(F1)$)
+			      coordinate (I1) at ($(G1)!0.525*\n0!90:(F1)$)
+			      
+			      coordinate (F2) at ($(C)!0.7*\n0!-90:(D)$)
+			      coordinate (G2) at ($(F2)!0.4*\n0!90:(C)$)
+			      coordinate (H2) at ($(G2)!0.175*\n0!90:(F2)$)
+			      coordinate (I2) at ($(G2)!0.525*\n0!90:(F2)$)
+			      
+			      ;
+		
+		\draw[#3] (F1) .. controls (H1) and (I1) .. (C);
+		\draw[#3] (F2) .. controls (H2) and (I2) .. (C);
+		\draw (A) #5 (D);
+		\draw (B) #6 (E);	
+	}
+%------------------------ENDE NEWCOMMAND \Wechselspannungsquelle
+
+%----------------------------- NEWCOMMAND \Gleichspannungsquelle
+%\Gleichspannungsquelle
+%  {#1:Coordinate 1}
+%  {#2:Coordinate 2}
+%  {#3:color,thickness (circle),info=left:{3V} or info=north:{3V}}
+%  {#4:Scale}
+%  {#5 and #6: -- or to[current direction] or to[current direction'={info={\small$i_{Nop}$}}] }
+%-------------------------------
+\newcommand{\Gleichspannungsquelle}[7]{
+		\coordinate (A) at (#1);
+		\coordinate (B) at (#2);
+		\coordinate (C) at ($(A)!0.5!(B)$);                                                   
+		\node [name path = Circle,#3][sR,scale=#4] (P) at (C) {};    
+		%-----------------------------------------------Intersection Calculations
+		\path [name path=Line] (A)--(B);
+		\path [name intersections={of=Line and Circle}];
+		\coordinate (D) at (intersection-1);
+		\coordinate (E) at (intersection-2);
+		
+		\draw let \p1 = ($(D)-(C)$),
+			      \n0={veclen(\x1,\y1)}
+			      in 
+			      coordinate (F1) at ($(C)!0.7*\n0!90:(D)$)
+			      coordinate (G1) at ($(F1)!0.25*\n0!90:(C)$)
+			      coordinate (H1) at ($(G1)!0.175*\n0!90:(F1)$)
+			      coordinate (I1) at ($(G1)!1.225*\n0!90:(F1)$)
+			      
+			      coordinate (F2) at ($(C)!0.7*\n0!-90:(D)$)
+			      coordinate (G2) at ($(F2)!0.25*\n0!90:(C)$)
+			      coordinate (H2) at ($(G2)!0.175*\n0!90:(F2)$)
+			      coordinate (I2) at ($(G2)!1.225*\n0!90:(F2)$)
+			      ;
+		
+		\draw[#3] (H1)--(I1);
+		\draw[#3] (H2)--(I2);
+	
+		\draw (A) #5 (D);
+		\draw (B) #6 (E);	
+	}
+%------------------------ENDE NEWCOMMAND \Gleichspannungsquelle
